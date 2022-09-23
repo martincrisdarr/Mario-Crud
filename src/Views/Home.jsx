@@ -1,28 +1,15 @@
 import { useState } from "react";
 import "../App.css";
-import NoteModal from '../Components/Notes/NoteModal'
-import NoteCard from '../Components/Notes/NoteCard'
+import NoteModal from "../Components/Notes/NoteModal";
+import NoteCard from "../Components/Notes/NoteCard";
 function Home() {
   const [notes, setNotes] = useState([]);
   const [draft, setDraft] = useState(null);
- 
   // DELETE FUNCTION
   const handleDelete = (id) => {
     setNotes((notes) => notes.filter((note) => note.id !== id));
   };
 
-  // ARCHIVED FUNCTION
-  const handleArchived = (id) => {
-    setNotes((notes) =>
-      notes.map((note) => {
-        if (note.id === id) return note;
-        return {
-          ...note,
-          archived: !note.archived,
-        };
-      })
-    );
-  };
 
   // EDIT FUNCTION
   const handleEdit = (note) => {
@@ -64,12 +51,20 @@ function Home() {
   return (
     <>
       <div>
-        <h1>Mis notas</h1>
-        <div>
-        <button className="nes-btn" onClick={() => setDraft({ title: "" })}>
-          Crear nota
-        </button>
-       
+        <h1>My notes</h1>
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <button className="nes-btn" onClick={() => setDraft({ title: "" })}>
+            Create note
+          </button>
+          <button className="nes-btn is-warning">
+            Logout
+          </button>
         </div>
       </div>
       <div
@@ -85,7 +80,6 @@ function Home() {
           <NoteCard
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onArchive={handleArchived}
             key={note.id}
             note={note}
           />
