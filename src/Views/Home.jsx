@@ -1,70 +1,52 @@
-import { useState } from "react";
 import "../App.css";
-import NoteModal from "../Components/Notes/NoteModal";
 import NoteCard from "../Components/Notes/NoteCard";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteNote, selectNote } from "../features/notesSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { UserAuth } from "../firebaseContext/AuthContext";
+import { useEffect } from "react";
+import { useState } from "react";
 function Home() {
-  const [notes, setNotes] = useState([]);
-  const [draft, setDraft] = useState(null);
-  // DELETE FUNCTION
-  const handleDelete = (id) => {
-    setNotes((notes) => notes.filter((note) => note.id !== id));
-  };
-
-
-  // EDIT FUNCTION
+  const { notes } = useSelector((state) => state.notes);
+  const {user, logout} = UserAuth()
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
   const handleEdit = (note) => {
-    setDraft(note);
-  };
-
-  // DRAFT CHANGE
-  const handleDraftChange = (field, value) => {
-    setDraft((draft) => ({
-      ...draft,
-      [field]: value,
-    }));
-  };
-
-  // SAVE BUTTON
-  const handleSave = () => {
-    if (draft.id) {
-      setNotes((notes) =>
-        notes.map((note) => {
-          if (note.id !== draft.id) return note;
-          return {
-            ...draft,
-            lastEdited: new Date().toString().split(" ").slice(0, 3).join(" "),
-          };
-        })
-      );
-    } else {
-      setNotes((notes) =>
-        notes.concat({
-          id: +new Date(),
-          lastEdited: new Date().toString().split(" ").slice(0, 3).join(" "),
-          ...draft,
-        })
-      );
+    dispatch(selectNote(note))
+    navigate(`/edit-note/${note.id}`)
+  }
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate('/login')
+    }catch (e) {
+      console.log(e.message)
     }
-    setDraft(null);
-  };
-
+  }
+  useEffect(()=>{
+    if(!user){
+      setLoading(true)
+      navigate('/login')
+      
+    }
+  },[])
+  if(!user) return <h1>You are not connected. Please <Link to ='/login'>Log in</Link></h1>
   return (
     <>
       <div>
         <h1>My notes</h1>
+        <p>User: {user && user.email}</p>
         <div
           style={{
             width: "100%",
             display: "flex",
             justifyContent: "space-between",
+            gap: 10,
           }}
         >
-          <button className="nes-btn" onClick={() => setDraft({ title: "" })}>
-            Create note
-          </button>
-          <button className="nes-btn is-warning">
-            Logout
-          </button>
+          <Link to='/create-note'><button className="nes-btn" onClick={() => dispatch(selectNote(null))}>Create note</button></Link>
+          <button className="nes-btn">Total notes : {notes.length}</button>
+          <button onClick={handleLogout} className="nes-btn is-warning">Logout</button>
         </div>
       </div>
       <div
@@ -78,21 +60,13 @@ function Home() {
       >
         {notes.map((note) => (
           <NoteCard
-            onEdit={handleEdit}
-            onDelete={handleDelete}
             key={note.id}
             note={note}
+            handleDelete={() => dispatch(deleteNote(note.id))}
+            handleEdit={() => handleEdit(note)}
           />
         ))}
       </div>
-      {draft && (
-        <NoteModal
-          onSave={handleSave}
-          onChange={handleDraftChange}
-          note={draft}
-          onClose={() => setDraft(null)}
-        />
-      )}
     </>
   );
 }

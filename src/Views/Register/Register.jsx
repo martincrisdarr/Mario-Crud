@@ -1,6 +1,24 @@
-import React from "react";
-import { Link } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link, useNavigate } from 'react-router-dom'
+import { UserAuth } from '../../firebaseContext/AuthContext'
+
 function Register() {
+  const [email,setEmail] = useState('')
+  const [password,setPassword] = useState('')
+  const [error,setError] = useState('')
+  const navigate = useNavigate()
+  const {createUser} = UserAuth()
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setError('')
+    try {
+      await createUser(email, password)
+      navigate('/')
+    }catch (e) {
+      setError(e.message)
+      console.log(e.message)
+    }
+  }
   return (
     <main
       style={{
@@ -17,34 +35,29 @@ function Register() {
         <form
           className="nes-container with-title is-centered"
           style={{ display: "flex", flexDirection: "column", gap: "24px", backgroundColor: 'white ' }}
+          onSubmit={handleSubmit}
         >
           <div>
-            <div className="nes-field">
-              <label for="name">Your name</label>
-              <input
-                type="text"
-                id="name"
-                className="nes-input "
-                style={{ outline: "none" }}
-              />
-            </div>
+          
           </div>
           <div className="nes-field">
-            <label for="email">Your Email</label>
+            <label htmlFor="email">Your Email</label>
             <input
               type="email"
               id="email"
               className="nes-input"
               style={{ outline: "none" }}
+              onChange={e => setEmail(e.target.value)}
             />
           </div>
           <div className="nes-field">
-            <label for="password">Your Password</label>
+            <label htmlFor="password">Your Password</label>
             <input
               type="password"
               id="password"
               className="nes-input"
               style={{ outline: "none" }}
+              onChange={e => setPassword(e.target.value)}
             />
           </div>
           <button className="nes-btn is-success">REGISTER ME</button>
