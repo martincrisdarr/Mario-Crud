@@ -9,6 +9,7 @@ function NoteCard({ note, handleDelete, handleEdit }) {
       }}
     >
       <h3>{note.title}</h3>
+      <p style={{color: 'gray'}}>{note.description}</p>
       <p>Last edited: {note.lastEdited}</p>
       <section
         style={{
